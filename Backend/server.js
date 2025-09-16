@@ -71,6 +71,9 @@ app.post("/api/initialize-rag", async (req, res) => {
       });
     }
 
+    // Clear existing collection to remove old data with null metadata
+    await RAGService.clearVectorStore();
+
     await RAGService.embedAndStore(chunks);
 
     res.json({
@@ -93,13 +96,57 @@ app.post("/api/search", async (req, res) => {
       return res.status(400).json({ error: "Query is required" });
     }
 
-    const chunks = await ragService.retrieveRelevantChunks(query);
+    const chunks = await RAGService.retrieveRelevantChunks(query);
     res.json({
       success: true,
       query,
       relevantChunks: chunks,
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide your query",
+      });
+    }
+
+    console.log("Processing query", query);
+
+    const relevantChunks = await RAGService.retrieveRelevantChunks(query, 3);
+
+    if (relevantChunks.length === 0) {
+      return res.json({
+        success: true,
+        query,
+        answer:
+          "I couldn't find any relevant information in the news articles to answer your question.",
+        sources: [],
+      });
+    }
+
+    //Generate answer
+    const result = await RAGService.generateAnswer(query, relevantChunks);
+
+    res.json({
+      success: true,
+      query,
+      answer: result.answer,
+      sources: result.sources,
+      retrievedChunks: relevantChunks.length,
+    });
+  } catch (error) {
+    console.error("Chat endpoint error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
