@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const DataIngestionService = require("./services/dataIngestion");
 const RAGPipeline = require("./services/ragPipeline");
+const SessionManager = require('./services/sessionManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,7 @@ app.use(express.json());
 
 const dataService = new DataIngestionService();
 const RAGService = new RAGPipeline();
+const sessionManager = new SessionManager();
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -110,9 +112,10 @@ app.post("/api/search", async (req, res) => {
   }
 });
 
+//gemini chat endpoint with session management
 app.post("/api/chat", async (req, res) => {
   try {
-    const { query } = req.body;
+    const { query, sessionId } = req.body;
 
     if (!query) {
       return res.status(400).json({
@@ -121,35 +124,100 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-    console.log("Processing query", query);
-
-    const relevantChunks = await RAGService.retrieveRelevantChunks(query, 3);
-
-    if (relevantChunks.length === 0) {
-      return res.json({
-        success: true,
-        query,
-        answer:
-          "I couldn't find any relevant information in the news articles to answer your question.",
-        sources: [],
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide a valid sessionId",
       });
     }
 
-    //Generate answer
-    const result = await RAGService.generateAnswer(query, relevantChunks);
+
+
+    console.log("Processing query", query, "for session", sessionId);
+
+    //Store user query in session
+    await sessionManager.addMessage(sessionId, { role: 'user', content: query });
+
+    //RAG: retrieve relevant chunks
+    const relevantChunks = await RAGService.retrieveRelevantChunks(query, 3);
+
+    let answer, sources = [];
+
+
+    if (relevantChunks.length === 0) {
+      answer = "I couldn't find any relevant information in the news articles to answer your question.";
+
+    } else {
+      const result = await RAGService.generateAnswer(query, relevantChunks);
+      answer = result.answer;
+      sources = result.sources;
+    }
+
+    await sessionManager.addMessage(sessionId, { role: 'bot', content: answer, sources: sources });
 
     res.json({
       success: true,
+      sessionId,
       query,
-      answer: result.answer,
-      sources: result.sources,
+      answer,
+      sources,
       retrievedChunks: relevantChunks.length,
     });
+
   } catch (error) {
     console.error("Chat endpoint error:", error.message);
     res.status(500).json({
       success: false,
       error: error.message,
+    });
+  }
+});
+
+//session management
+app.post("/api/session/createNew", async (req, res) => {
+  try {
+    const sessionId = await sessionManager.createSession();
+    res.json({
+      success: true,
+      sessionId
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.get('/api/session/:sessionId/history', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const history = await sessionManager.getSessionHistory(sessionId);
+    res.json({
+      success: true,
+      sessionId,
+      messages: history
+    });
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      error: 'Session not found'
+    });
+  }
+});
+
+app.delete('/api/session/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    await sessionManager.clearSession(sessionId);
+    res.json({
+      success: true,
+      message: 'Session cleared'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
