@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { ChromaClient } = require("chromadb");
 
@@ -8,9 +9,7 @@ class RAGPipeline {
     this.collectionName = "news_articles";
 
     //Gemini
-    this.genAI = new GoogleGenerativeAI(
-      "AIzaSyDlF25G52_EgFLXB5lDXoClMHxush0lyKI"
-    );
+    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_APIKEY);
     this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   }
 
