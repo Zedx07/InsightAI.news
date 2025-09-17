@@ -9,8 +9,10 @@ class RAGPipeline {
     this.collectionName = "news_articles";
 
     //Gemini
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_APIKEY);
-    this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    this.genAI = new GoogleGenerativeAI(
+      "AIzaSyBygXCEz3tIFoYGGERHUkxVdgZwbdA5Vns"
+    );
+    this.model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   }
 
   async initializeVectorStore() {
