@@ -1,0 +1,29 @@
+.chat-interface {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f8f9fa;
+}
+
+.chat-header {
+  background: #fff;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chat-header h2 {
+  margin: 0;
+  color: #495057;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .chat-header {
+    padding: 1rem;
+  }
+  
+  .chat-header h2 {
+    font-size: 1.25rem;
+  }
+}
