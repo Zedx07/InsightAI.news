@@ -5,6 +5,7 @@ const cors = require("cors");
 const DataIngestionService = require("./services/dataIngestion");
 const RAGPipeline = require("./services/ragPipeline");
 const SessionManager = require('./services/sessionManager');
+const CacheManager = require('./services/cacheManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,10 @@ app.use(express.json());
 const dataService = new DataIngestionService();
 const RAGService = new RAGPipeline();
 const sessionManager = new SessionManager();
+const cacheManager = new CacheManager();
+
+// Start cache warming process
+cacheManager.startCacheWarming(RAGService, dataService);
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -112,7 +117,7 @@ app.post("/api/search", async (req, res) => {
   }
 });
 
-//gemini chat endpoint with session management
+//gemini chat endpoint with session management and caching
 app.post("/api/chat", async (req, res) => {
   try {
     const { query, sessionId } = req.body;
@@ -131,26 +136,34 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-
-
     console.log("Processing query", query, "for session", sessionId);
 
     //Store user query in session
     await sessionManager.addMessage(sessionId, { role: 'user', content: query });
 
-    //RAG: retrieve relevant chunks
-    const relevantChunks = await RAGService.retrieveRelevantChunks(query, 3);
+    // Check cache first
+    let answer, sources = [], fromCache = false;
+    const cachedResult = await cacheManager.getCachedQuery(query);
 
-    let answer, sources = [];
-
-
-    if (relevantChunks.length === 0) {
-      answer = "I couldn't find any relevant information in the news articles to answer your question.";
-
+    if (cachedResult) {
+      answer = cachedResult.answer;
+      sources = cachedResult.sources;
+      fromCache = true;
+      console.log('Using cached response for query:', query);
     } else {
-      const result = await RAGService.generateAnswer(query, relevantChunks);
-      answer = result.answer;
-      sources = result.sources;
+      //RAG: retrieve relevant chunks
+      const relevantChunks = await RAGService.retrieveRelevantChunks(query, 3);
+
+      if (relevantChunks.length === 0) {
+        answer = "I couldn't find any relevant information in the news articles to answer your question.";
+      } else {
+        const result = await RAGService.generateAnswer(query, relevantChunks);
+        answer = result.answer;
+        sources = result.sources;
+
+        // Cache the result for future use
+        await cacheManager.cacheQueryResult(query, answer, sources);
+      }
     }
 
     await sessionManager.addMessage(sessionId, { role: 'bot', content: answer, sources: sources });
@@ -161,7 +174,8 @@ app.post("/api/chat", async (req, res) => {
       query,
       answer,
       sources,
-      retrievedChunks: relevantChunks.length,
+      fromCache,
+      retrievedChunks: fromCache ? 'cached' : 'fresh',
     });
 
   } catch (error) {
@@ -247,6 +261,115 @@ app.delete('/api/session/:sessionId', async (req, res) => {
     res.json({
       success: true,
       message: 'Session cleared'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Cache management endpoints
+app.get('/api/cache/stats', async (req, res) => {
+  try {
+    const stats = await cacheManager.getStats();
+    res.json({
+      success: true,
+      stats: stats
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.post('/api/cache/warm', async (req, res) => {
+  try {
+    await cacheManager.warmCache(RAGService, dataService);
+    res.json({
+      success: true,
+      message: 'Cache warming initiated'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.delete('/api/cache/clear/:pattern', async (req, res) => {
+  try {
+    const pattern = req.params.pattern || '*';
+    const cleared = await cacheManager.clearByPattern(pattern);
+    res.json({
+      success: true,
+      message: `Cleared ${cleared} cache entries`,
+      cleared: cleared
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.delete('/api/cache/clear', async (req, res) => {
+  try {
+    const pattern = '*'; // Clear all by default
+    const cleared = await cacheManager.clearByPattern(pattern);
+    res.json({
+      success: true,
+      message: `Cleared ${cleared} cache entries`,
+      cleared: cleared
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Session TTL management
+app.put('/api/session/:sessionId/refresh', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const refreshed = await sessionManager.refreshSession(sessionId);
+    if (refreshed) {
+      const ttl = await sessionManager.getSessionTTL(sessionId);
+      res.json({
+        success: true,
+        message: 'Session TTL refreshed',
+        ttl: ttl
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: 'Session not found'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.get('/api/session/:sessionId/ttl', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const ttl = await sessionManager.getSessionTTL(sessionId);
+    res.json({
+      success: true,
+      sessionId,
+      ttl: ttl,
+      expiresIn: `${Math.floor(ttl / 60)} minutes`
     });
   } catch (error) {
     res.status(500).json({

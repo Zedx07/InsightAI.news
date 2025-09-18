@@ -13,6 +13,10 @@ class SessionManager {
     this.client.on("connect", () => {
       console.log("Connected to Redis server");
     });
+
+    // Load TTL from environment with fallback
+    this.sessionTTL = parseInt(process.env.SESSION_TTL) || 86400; // 24 hours default
+    console.log(`SessionManager: Using TTL of ${this.sessionTTL} seconds (${this.sessionTTL / 3600} hours)`);
   }
 
   async connect() {
@@ -30,13 +34,13 @@ class SessionManager {
         createdAt: new Date().toISOString(),
         messages: [],
       };
-      // 24 hour ttl
+      // Use configurable TTL
       await this.client.setEx(
         `session:${sessionId}`,
-        86400,
+        this.sessionTTL,
         JSON.stringify(sessionData)
       );
-      console.log("Session created:", sessionId);
+      console.log(`Session created: ${sessionId} with TTL ${this.sessionTTL}s`);
 
       return sessionId;
     } catch (error) {
@@ -69,10 +73,10 @@ class SessionManager {
         timestamp: new Date().toISOString(),
       });
 
-      // Update session with new TTL
+      // Update session with configurable TTL
       await this.client.setEx(
         `session:${sessionId}`,
-        86400, // 24hrs
+        this.sessionTTL,
         JSON.stringify(session)
       );
       console.log(`Added message to session ${sessionId}`);
@@ -130,6 +134,9 @@ class SessionManager {
           const sessionData = await this.client.get(key);
           if (sessionData) {
             const session = JSON.parse(sessionData);
+            // Get TTL information
+            const ttl = await this.client.ttl(key);
+
             // Return basic session info for the frontend
             sessions.push({
               id: session.id,
@@ -137,7 +144,8 @@ class SessionManager {
               lastMessage: session.messages.length > 0
                 ? session.messages[ session.messages.length - 1 ].content
                 : 'No messages',
-              timestamp: session.createdAt
+              timestamp: session.createdAt,
+              ttl: ttl > 0 ? ttl : 0 // TTL in seconds, 0 if expired
             });
           }
         } catch (parseError) {
@@ -151,6 +159,47 @@ class SessionManager {
       console.error("Error getting all sessions:", error);
       return [];
     }
+  }
+
+  /**
+   * Extend session TTL (refresh session)
+   */
+  async refreshSession(sessionId) {
+    try {
+      await this.connect();
+      const exists = await this.client.exists(`session:${sessionId}`);
+      if (exists) {
+        await this.client.expire(`session:${sessionId}`, this.sessionTTL);
+        console.log(`Session ${sessionId} TTL refreshed to ${this.sessionTTL}s`);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error refreshing session:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Get session TTL
+   */
+  async getSessionTTL(sessionId) {
+    try {
+      await this.connect();
+      const ttl = await this.client.ttl(`session:${sessionId}`);
+      return ttl > 0 ? ttl : 0;
+    } catch (error) {
+      console.error("Error getting session TTL:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Update TTL configuration
+   */
+  updateTTL(newTTL) {
+    this.sessionTTL = newTTL;
+    console.log(`SessionManager: TTL updated to ${this.sessionTTL} seconds`);
   }
 }
 
