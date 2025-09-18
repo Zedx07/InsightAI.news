@@ -1,4 +1,5 @@
 import React from "react";
+import ReactMarkdown from "react-markdown";
 import "./MessageList.scss";
 
 const MessageList = ({ messages, isLoading }) => {
@@ -6,7 +7,13 @@ const MessageList = ({ messages, isLoading }) => {
     <div className="message-list">
       {messages.map((message) => (
         <div key={message.id} className={`message ${message.type}`}>
-          <div className="message-content">{message.content}</div>
+          <div className="message-content">
+            {message.type === "bot" ? (
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            ) : (
+              message.content
+            )}
+          </div>
           <div className="message-time">
             {message.timestamp.toLocaleTimeString([], {
               hour: "2-digit",

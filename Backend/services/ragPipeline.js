@@ -74,19 +74,19 @@ class RAGPipeline {
       // Debug logging
       console.log("ChromaDB Storage Debug:", {
         chunksLength: chunks.length,
-        firstChunk: chunks[0]
+        firstChunk: chunks[ 0 ]
           ? {
-              hasText: !!chunks[0].text,
-              hasSource: !!chunks[0].source,
-              hasSourceTitle: !!chunks[0].source?.title,
-              hasSourceLink: !!chunks[0].source?.link,
-              hasPubDate: !!chunks[0].source?.pubDate,
-              hasId: !!chunks[0].id,
-              sourceTitle: chunks[0].source?.title,
-              sourceLink: chunks[0].source?.link,
-            }
+            hasText: !!chunks[ 0 ].text,
+            hasSource: !!chunks[ 0 ].source,
+            hasSourceTitle: !!chunks[ 0 ].source?.title,
+            hasSourceLink: !!chunks[ 0 ].source?.link,
+            hasPubDate: !!chunks[ 0 ].source?.pubDate,
+            hasId: !!chunks[ 0 ].id,
+            sourceTitle: chunks[ 0 ].source?.title,
+            sourceLink: chunks[ 0 ].source?.link,
+          }
           : "No chunks",
-        firstMetadata: metadatas[0] || "No metadata",
+        firstMetadata: metadatas[ 0 ] || "No metadata",
       });
 
       await this.collection.add({
@@ -116,9 +116,9 @@ class RAGPipeline {
       }
 
       const results = await this.collection.query({
-        queryTexts: [query],
+        queryTexts: [ query ],
         nResults: topK,
-        include: ["documents", "metadatas", "distances"],
+        include: [ "documents", "metadatas", "distances" ],
       });
 
       // Debug logging
@@ -126,26 +126,26 @@ class RAGPipeline {
         hasDocuments: !!results.documents,
         hasMetadatas: !!results.metadatas,
         hasDistances: !!results.distances,
-        documentsLength: results.documents ? results.documents[0]?.length : 0,
-        metadatasLength: results.metadatas ? results.metadatas[0]?.length : 0,
+        documentsLength: results.documents ? results.documents[ 0 ]?.length : 0,
+        metadatasLength: results.metadatas ? results.metadatas[ 0 ]?.length : 0,
         firstMetadata:
-          results.metadatas && results.metadatas[0]
-            ? results.metadatas[0][0]
+          results.metadatas && results.metadatas[ 0 ]
+            ? results.metadatas[ 0 ][ 0 ]
             : "null",
       });
 
       const relevantChunks = [];
-      if (results.documents && results.documents[0]) {
-        for (let i = 0; i < results.documents[0].length; i++) {
+      if (results.documents && results.documents[ 0 ]) {
+        for (let i = 0; i < results.documents[ 0 ].length; i++) {
           relevantChunks.push({
-            text: results.documents[0][i],
+            text: results.documents[ 0 ][ i ],
             metadata:
-              results.metadatas && results.metadatas[0]
-                ? results.metadatas[0][i]
+              results.metadatas && results.metadatas[ 0 ]
+                ? results.metadatas[ 0 ][ i ]
                 : null,
             distance:
-              results.distances && results.distances[0]
-                ? results.distances[0][i]
+              results.distances && results.distances[ 0 ]
+                ? results.distances[ 0 ][ i ]
                 : null,
           });
         }
@@ -161,20 +161,25 @@ class RAGPipeline {
     }
   }
 
-  //Gemini
   async generateAnswer(query, relevantChunks) {
     try {
       const context = relevantChunks
         .map((chunk, index) => `[${index + 1}] ${chunk.text}`)
         .join("\n\n");
-      const prompt = `Based on the following news articles, answer the user's question. If the information isn't available in the article, let the user know
-      
-      Context from news articles: 
-      ${context}
+      const prompt = `Based on the following news articles, answer the user's question in well-formatted Markdown. If the information isn't available in the articles, let the user know.
 
-      User Question: ${query}
+Please format your response using proper Markdown syntax:
+- Use **bold** for important terms and names
+- Use bullet points (•) or numbered lists for multiple items
+- Use headers (##) to organize different topics
+- Keep paragraphs concise and readable
       
-      Answer:`;
+Context from news articles: 
+${context}
+
+User Question: ${query}
+      
+Answer (in Markdown format):`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
