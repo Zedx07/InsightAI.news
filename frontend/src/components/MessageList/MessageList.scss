@@ -1,0 +1,56 @@
+.message-list {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background: #f8f9fa;
+}
+
+.message {
+  margin-bottom: 1rem;
+  max-width: 70%;
+}
+
+.message.user {
+  margin-left: auto;
+}
+
+.message.user .message-content {
+  background: #007bff;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.message.bot .message-content {
+  background: white;
+  color: #495057;
+  padding: 0.75rem 1rem;
+  border-radius: 18px 18px 18px 4px;
+  border: 1px solid #dee2e6;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+  text-align: right;
+}
+
+.message.user .message-time {
+  text-align: right;
+}
+
+.message.bot .message-time {
+  text-align: left;
+}
+
+.typing {
+  color: #6c757d;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .message {
+    max-width: 85%;
+  }
+}
