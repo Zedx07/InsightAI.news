@@ -105,6 +105,53 @@ class SessionManager {
       throw error;
     }
   }
+
+  // Check if session exists
+  async sessionExists(sessionId) {
+    try {
+      await this.connect();
+      const exists = await this.client.exists(`session:${sessionId}`);
+      return exists === 1;
+    } catch (error) {
+      console.error("Error checking session existence:", error);
+      return false;
+    }
+  }
+
+  // Get all sessions (for frontend session list)
+  async getAllSessions() {
+    try {
+      await this.connect();
+      const keys = await this.client.keys('session:*');
+      const sessions = [];
+
+      for (const key of keys) {
+        try {
+          const sessionData = await this.client.get(key);
+          if (sessionData) {
+            const session = JSON.parse(sessionData);
+            // Return basic session info for the frontend
+            sessions.push({
+              id: session.id,
+              title: `Chat ${session.id.slice(0, 8)}`, // Short ID for title
+              lastMessage: session.messages.length > 0
+                ? session.messages[ session.messages.length - 1 ].content
+                : 'No messages',
+              timestamp: session.createdAt
+            });
+          }
+        } catch (parseError) {
+          console.error('Error parsing session data:', parseError);
+        }
+      }
+
+      // Sort by creation date, newest first
+      return sessions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    } catch (error) {
+      console.error("Error getting all sessions:", error);
+      return [];
+    }
+  }
 }
 
 module.exports = SessionManager;

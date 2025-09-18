@@ -189,6 +189,40 @@ app.post("/api/session/createNew", async (req, res) => {
   }
 });
 
+// New endpoint to get all sessions
+app.get('/api/sessions', async (req, res) => {
+  try {
+    const sessions = await sessionManager.getAllSessions();
+    res.json({
+      success: true,
+      sessions: sessions || []
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      sessions: []
+    });
+  }
+});
+
+// New endpoint to validate session
+app.get('/api/session/:sessionId/validate', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const isValid = await sessionManager.sessionExists(sessionId);
+    res.json({
+      success: true,
+      valid: isValid
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      valid: false
+    });
+  }
+});
+
 app.get('/api/session/:sessionId/history', async (req, res) => {
   try {
     const { sessionId } = req.params;
