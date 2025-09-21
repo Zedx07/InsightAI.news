@@ -1,0 +1,386 @@
+{
+	"info": {
+		"_postman_id": "2c84e225-bb0b-4a30-b5b0-cf5e31d5f239",
+		"name": "InsightAI.news-RAG",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24682995"
+	},
+	"item": [
+		{
+			"name": "InitializeRAG",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/initialize-rag",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"initialize-rag"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"query\": \"Trump\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/search",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CacheWarm",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/cache/warm",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"cache",
+						"warm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Chat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n  \"query\": \"Trum news\", \r\n  \"sessionId\": \"fe95bf61-bd62-4c74-8cbb-7558b3fb836b\" \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/chat",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"chat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "newSession",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"query\": \"politics\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/session/createNew",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"session",
+						"createNew"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Session TTL",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"query\": \"politics\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/session/4dd7539d-f32d-4fab-a3d8-3ca47c958a9a/refresh",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"session",
+						"4dd7539d-f32d-4fab-a3d8-3ca47c958a9a",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Session History",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"query\": \"politics\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/session/ecb9d91a-1de8-47b0-9de5-b7ca2dddee81/history",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"session",
+						"ecb9d91a-1de8-47b0-9de5-b7ca2dddee81",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CacheStats",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/session/4dd7539d-f32d-4fab-a3d8-3ca47c958a9a/ttl",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"session",
+						"4dd7539d-f32d-4fab-a3d8-3ca47c958a9a",
+						"ttl"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check Session TTL",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"query\": \"politics\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/session/{sessionId}/history",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"session",
+						"{sessionId}",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Session History",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"query\": \"politics\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/session/7a00d3ff-1a28-46ea-8110-f87e1535ae1a",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"session",
+						"7a00d3ff-1a28-46ea-8110-f87e1535ae1a"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clear Specific Cache",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"query\": \"politics\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/cache/clear/query:*",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"cache",
+						"clear",
+						"query:*"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test Gemini",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-goog-api-key",
+						"value": "AIzaSyBygXCEz3tIFoYGGERHUkxVdgZwbdA5Vns"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"contents\": [\r\n      {\r\n        \"parts\": [\r\n          {\r\n            \"text\": \"Explain how AI works in a few words\"\r\n          }\r\n        ]\r\n      }\r\n    ]\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+					"protocol": "https",
+					"host": [
+						"generativelanguage",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"v1beta",
+						"models",
+						"gemini-2.0-flash:generateContent"
+					]
+				},
+				"description": "Generated from cURL: curl \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent\" \\\r\n  -H 'Content-Type: application/json' \\\r\n  -H 'X-goog-api-key: GEMINI_API_KEY' \\\r\n  -X POST \\\r\n  -d '{\r\n    \"contents\": [\r\n      {\r\n        \"parts\": [\r\n          {\r\n            \"text\": \"Explain how AI works in a few words\"\r\n          }\r\n        ]\r\n      }\r\n    ]\r\n  }'"
+			},
+			"response": []
+		},
+		{
+			"name": "Prod Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/health",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
