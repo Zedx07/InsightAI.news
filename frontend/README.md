@@ -1,4 +1,51 @@
-# Getting Started with Create React App
+# InsightAI News - Frontend
+
+## Overview
+
+The frontend for InsightAI News is a React-based web application that provides an intelligent chat interface for news queries and analysis. Built with Create React App, it offers a seamless user experience for interacting with AI-powered news insights.
+
+![alt text](image.png)
+_InsightAI News chat interface showing session management and news analysis features_
+
+## Features
+
+- 🔍 **Intelligent Chat Interface**: Interactive chat for news queries and analysis
+- 💬 **Session Management**: Persistent chat sessions with automatic saving
+- 📱 **Responsive Design**: Optimized for desktop and mobile devices
+- ⚡ **Real-time Updates**: Live chat responses with typing indicators
+- 🎨 **Modern UI**: Clean, intuitive interface with SCSS styling
+- 📊 **Chat History**: Access to previous conversations and sessions
+- 🔄 **Auto-refresh**: Automatic session management and state persistence
+
+## Application Interface
+
+![InsightAI News Application](./images/app-screenshot.png)
+_InsightAI News chat interface showing session management and news analysis features_
+
+The application features a modern, intuitive interface with:
+
+### Chat Interface
+
+- **Main Chat Window**: Central area for conversation display with latest news summaries
+- **Message Input**: Text area for typing queries with send button
+- **Session List**: Left sidebar showing all chat sessions with previews
+- **New Chat Button**: Quick action to start fresh conversations
+
+### Session Management
+
+- **Automatic Session Creation**: New sessions created automatically with unique IDs
+- **Session Persistence**: Conversations saved and retrievable across browser sessions
+- **Session Previews**: Quick preview of conversation topics in the sidebar
+- **Session Navigation**: Easy switching between different chat sessions
+
+### Key Interface Elements
+
+- **Clean Layout**: Organized two-panel design with session list and chat area
+- **Real-time Responses**: Live display of AI-generated news summaries and analysis
+- **Responsive Design**: Adapts to different screen sizes and devices
+- **Developer Tools Integration**: Shows network activity and debugging information
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
