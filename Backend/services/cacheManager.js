@@ -2,11 +2,30 @@ const redis = require('redis');
 
 class CacheManager {
     constructor() {
+        // Try to create Redis client with URL first, fallback to explicit config
         const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-        this.client = redis.createClient({ url: redisUrl });
+
+        try {
+            // First attempt: use URL
+            this.client = redis.createClient({ url: redisUrl });
+        } catch (error) {
+            console.log('Cache Manager: Failed to create client with URL, trying explicit config:', error.message);
+
+            // Fallback: explicit configuration for Redis Cloud
+            this.client = redis.createClient({
+                username: 'default',
+                password: process.env.REDIS_PASSWORD || 'kRKq4VPS4eAWEtqtuWCWQlNKL6hxvbsS',
+                socket: {
+                    host: process.env.REDIS_HOST || 'redis-14090.crce206.ap-south-1-1.ec2.redns.redis-cloud.com',
+                    port: parseInt(process.env.REDIS_PORT) || 14090,
+                    tls: true // Enable TLS for Redis Cloud
+                }
+            });
+        }
 
         this.client.on("error", (err) => console.log("Cache Manager Redis Error", err));
         this.client.on("connect", () => console.log("Cache Manager connected to Redis"));
+        this.client.on("ready", () => console.log("Cache Manager Redis client is ready"));
 
         // Load TTL configurations from environment
         this.ttlConfig = {
