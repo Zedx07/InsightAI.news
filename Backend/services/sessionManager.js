@@ -3,25 +3,18 @@ const { v4: uuidv4 } = require('uuid');
 
 class SessionManager {
   constructor() {
-    // Try to create Redis client with URL first, fallback to explicit config
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-
-    try {
-      // First attempt: use URL
-      this.client = redis.createClient({ url: redisUrl });
-    } catch (error) {
-      console.log('Failed to create client with URL, trying explicit config:', error.message);
-
-      // Fallback: explicit configuration for Redis Cloud
-      this.client = redis.createClient({
-        username: 'default',
-        password: process.env.REDIS_PASSWORD || 'kRKq4VPS4eAWEtqtuWCWQlNKL6hxvbsS',
-        socket: {
-          host: process.env.REDIS_HOST || 'redis-14090.crce206.ap-south-1-1.ec2.redns.redis-cloud.com',
-          port: parseInt(process.env.REDIS_PORT) || 14090
-        }
-      });
-    }
+    // Configure Redis client for Redis Cloud
+    // Use explicit configuration that works with Redis Cloud
+    this.client = redis.createClient({
+      username: process.env.REDIS_USERNAME || 'default',
+      password: process.env.REDIS_PASSWORD || 'kRKq4VPS4eAWEtqtuWCWQlNKL6hxvbsS',
+      socket: {
+        host: process.env.REDIS_HOST || 'redis-14090.crce206.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: parseInt(process.env.REDIS_PORT) || 14090,
+        tls: false,  // Redis Cloud instance doesn't require TLS
+        connectTimeout: 15000,
+      }
+    });
 
     this.client.on("error", (err) => console.log("Redis Client Error", err));
 

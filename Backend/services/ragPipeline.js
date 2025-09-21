@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: require('path').join(__dirname, '../.env') });
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { CloudClient, ChromaClient } = require("chromadb");
 
@@ -9,6 +9,9 @@ class RAGPipeline {
     const chromaTenant = process.env.CHROMA_TENANT;
     const chromaDatabase = process.env.CHROMA_DATABASE;
 
+    console.log("ChromaDB config:", chromaApiKey, chromaTenant, chromaDatabase);
+
+
     if (chromaApiKey && chromaTenant && chromaDatabase) {
       // Use cloud ChromaDB
       this.client = new CloudClient({
@@ -17,12 +20,13 @@ class RAGPipeline {
         database: chromaDatabase
       });
       console.log("ChromaDB: Using cloud client");
-    } else {
-      // Fallback to local ChromaDB
-      const chromaUrl = process.env.CHROMA_URL || "http://localhost:8000";
-      this.client = new ChromaClient({ path: chromaUrl });
-      console.log("ChromaDB: Using local client at", chromaUrl);
     }
+    // } else {
+    //   // Fallback to local ChromaDB
+    //   const chromaUrl = process.env.CHROMA_URL;
+    //   this.client = new ChromaClient({ path: chromaUrl });
+    //   console.log("ChromaDB: Using local client at", chromaUrl);
+    // }
 
     this.collection = null;
     this.collectionName = "news_articles";
