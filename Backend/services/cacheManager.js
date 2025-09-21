@@ -2,10 +2,8 @@ const redis = require('redis');
 
 class CacheManager {
     constructor() {
-        this.client = redis.createClient({
-            host: "localhost",
-            port: 6379,
-        });
+        const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+        this.client = redis.createClient({ url: redisUrl });
 
         this.client.on("error", (err) => console.log("Cache Manager Redis Error", err));
         this.client.on("connect", () => console.log("Cache Manager connected to Redis"));

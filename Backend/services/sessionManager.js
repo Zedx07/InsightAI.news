@@ -3,10 +3,8 @@ const { v4: uuidv4 } = require('uuid');
 
 class SessionManager {
   constructor() {
-    this.client = redis.createClient({
-      host: "localhost",
-      port: 6379,
-    });
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    this.client = redis.createClient({ url: redisUrl });
 
     this.client.on("error", (err) => console.log("Redis Client Error", err));
 
