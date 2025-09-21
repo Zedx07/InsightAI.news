@@ -10,16 +10,18 @@ The backend service for InsightAI.news - an intelligent news RAG system that pro
 - 🚀 **Smart Caching**: Redis-based multi-layer caching with TTLs, auto-renewal, and warming for popular queries
 - 💬 **Session Management**: Unique session IDs, persistent history, and one-click reset support
 - 📊 **Cache Insights**: Real-time stats and analytics for monitoring performance
-- 🌐 **Dynamic News Sources** *(Future via MCP)*: Users can inject any news page or feed and chat over it instantly
+- 🌐 **Dynamic News Sources** _(Future via MCP)_: Users can inject any news page or feed and chat over it instantly
 
 ## Architecture
 
 ### Data Flow
+
 ```
 RSS Feed → Parse Articles → Chunk Text → Embeddings → Vector Store
 ```
 
 ### System Architecture
+
 ```
 Backend (Node.js/Express) ←→ Redis (Caching) ←→ ChromaDB (Vectors) ←→ Gemini AI
 ```
@@ -32,21 +34,21 @@ Backend (Node.js/Express) ←→ Redis (Caching) ←→ ChromaDB (Vectors) ←�
 
 **Production Environment:**
 ![ChromaDB Production Client](./images/chromadb-production.png)
-*ChromaDB client configuration for production deployment*
+_ChromaDB client configuration for production deployment_
 
 **Development Environment:**
 ![ChromaDB Docker Local](./images/chromadb-development.png)
-*ChromaDB Docker image for local development*
+_ChromaDB Docker image for local development_
 
 ### Caching Layer - Redis
 
 **Production Environment:**
 ![Redis Production Client](./images/redis-production.png)
-*Redis client configuration for production deployment*
+_Redis client configuration for production deployment_
 
 **Development Environment:**
 ![Redis Docker Local](./images/redis-development.png)
-*Redis Docker image for local development*
+_Redis Docker image for local development_
 
 ## Cache Management System
 
@@ -97,15 +99,16 @@ POPULAR_QUERIES=what is the latest news,today's news,breaking news,politics,spor
 
 🚀 **Successfully deployed on Render using Redis MCP**
 ![Render Deployment](./images/render-deployment.png)
-*Backend service deployed and running on Render cloud platform*
+_Backend service deployed and running on Render cloud platform_
 
 ### Backup & Recovery
 
 💾 **First-time backend backup completed**
 ![Backend Backup](./images/backend-backup.png)
-*Initial backup system implementation and verification*
+_Initial backup system implementation and verification_
 
 ### Key Achievements
+
 - ✅ Production deployment on Render platform
 - ✅ Automated backup system implementation
 - ✅ Redis caching layer optimization
