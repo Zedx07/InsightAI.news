@@ -136,8 +136,8 @@ Thumbs.db
 *~
 
 # Build directories
-build/
-dist/
+# build/
+# dist/
 
 # Database files
 *.db
