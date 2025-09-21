@@ -2,7 +2,7 @@
 
 ## Overview
 
-InsightAI.news is a sophisticated Retrieval-Augmented Generation (RAG) system that provides intelligent answers to news-related queries. The system features advanced caching mechanisms, configurable TTL (Time To Live) settings, and automatic cache warming for optimal performance.
+InsightAI.news is a RAG system that provides intelligent answers to news-related queries. The system features caching , configurable TTL settings, and automatic cache warming.
 
 ## Features
 
@@ -309,11 +309,7 @@ POPULAR_QUERIES=breaking news,latest updates,politics,sports,technology,health,b
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Implement your changes with proper TTL/caching considerations
-4. Add tests for cache functionality
-5. Submit a pull request
+1. This is open source. Please Free to use and contribute in it's growth
 
 ## License
 
@@ -321,4 +317,5 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Need Help?** Check the API documentation or create an issue for support with caching configurations.
+**Developed by** Shubham Golwal
+**Contact** shubhamgolwal123@gmail.com (+91 8767284228)
