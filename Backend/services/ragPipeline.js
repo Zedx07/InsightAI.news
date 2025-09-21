@@ -4,23 +4,20 @@ const { CloudClient, ChromaClient } = require("chromadb");
 
 class RAGPipeline {
   constructor() {
-    // Check if cloud credentials are available
-    const chromaApiKey = process.env.CHROMA_API_KEY;
-    const chromaTenant = process.env.CHROMA_TENANT;
-    const chromaDatabase = process.env.CHROMA_DATABASE;
+    // Hardcoded ChromaDB cloud credentials
+    const chromaApiKey = "ck-Dwz7Drz5Y5WMZE4PEeWSCXXtVxgcKm6yhL8EwNYx7kMb";
+    const chromaTenant = "d3f8141a-aeea-4529-a310-2de76441d8a4";
+    const chromaDatabase = "InsightAI-chromaDB";
 
     console.log("ChromaDB config:", chromaApiKey, chromaTenant, chromaDatabase);
 
-
-    if (chromaApiKey && chromaTenant && chromaDatabase) {
-      // Use cloud ChromaDB
-      this.client = new CloudClient({
-        apiKey: chromaApiKey,
-        tenant: chromaTenant,
-        database: chromaDatabase
-      });
-      console.log("ChromaDB: Using cloud client");
-    }
+    // Use cloud ChromaDB with hardcoded credentials
+    this.client = new CloudClient({
+      apiKey: chromaApiKey,
+      tenant: chromaTenant,
+      database: chromaDatabase
+    });
+    console.log("ChromaDB: Using cloud client with hardcoded credentials");
     // } else {
     //   // Fallback to local ChromaDB
     //   const chromaUrl = process.env.CHROMA_URL;

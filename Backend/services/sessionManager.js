@@ -3,14 +3,13 @@ const { v4: uuidv4 } = require('uuid');
 
 class SessionManager {
   constructor() {
-    // Configure Redis client for Redis Cloud
-    // Use explicit configuration that works with Redis Cloud
+    // Hardcoded Redis configuration for Redis Cloud
     this.client = redis.createClient({
-      username: process.env.REDIS_USERNAME || 'default',
-      password: process.env.REDIS_PASSWORD || 'kRKq4VPS4eAWEtqtuWCWQlNKL6hxvbsS',
+      username: 'default',
+      password: 'kRKq4VPS4eAWEtqtuWCWQlNKL6hxvbsS',
       socket: {
-        host: process.env.REDIS_HOST || 'redis-14090.crce206.ap-south-1-1.ec2.redns.redis-cloud.com',
-        port: parseInt(process.env.REDIS_PORT) || 14090,
+        host: 'redis-14090.crce206.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 14090,
         tls: false,  // Redis Cloud instance doesn't require TLS
         connectTimeout: 15000,
       }
@@ -26,8 +25,8 @@ class SessionManager {
       console.log("Redis client is ready to use");
     });
 
-    // Load TTL from environment with fallback
-    this.sessionTTL = parseInt(process.env.SESSION_TTL) || 86400; // 24 hours default
+    // Hardcoded session TTL (24 hours)
+    this.sessionTTL = 86400;
     console.log(`SessionManager: Using TTL of ${this.sessionTTL} seconds (${this.sessionTTL / 3600} hours)`);
   }
 

@@ -2,14 +2,13 @@ const redis = require('redis');
 
 class CacheManager {
     constructor() {
-        // Configure Redis client for Redis Cloud
-        // Use explicit configuration that works with Redis Cloud
+        // Hardcoded Redis client configuration for Redis Cloud
         this.client = redis.createClient({
-            username: process.env.REDIS_USERNAME || 'default',
-            password: process.env.REDIS_PASSWORD || 'kRKq4VPS4eAWEtqtuWCWQlNKL6hxvbsS',
+            username: 'default',
+            password: 'kRKq4VPS4eAWEtqtuWCWQlNKL6hxvbsS',
             socket: {
-                host: process.env.REDIS_HOST || 'redis-14090.crce206.ap-south-1-1.ec2.redns.redis-cloud.com',
-                port: parseInt(process.env.REDIS_PORT) || 14090,
+                host: 'redis-14090.crce206.ap-south-1-1.ec2.redns.redis-cloud.com',
+                port: 14090,
                 tls: false,  // Redis Cloud instance doesn't require TLS
                 connectTimeout: 15000,
             }
@@ -19,19 +18,17 @@ class CacheManager {
         this.client.on("connect", () => console.log("Cache Manager connected to Redis"));
         this.client.on("ready", () => console.log("Cache Manager Redis client is ready"));
 
-        // Load TTL configurations from environment
+        // Hardcoded TTL configurations
         this.ttlConfig = {
-            session: parseInt(process.env.SESSION_TTL) || 86400, // 24 hours
-            vectorCache: parseInt(process.env.VECTOR_CACHE_TTL) || 21600, // 6 hours
-            queryCache: parseInt(process.env.QUERY_CACHE_TTL) || 3600, // 1 hour
+            session: 86400, // 24 hours
+            vectorCache: 21600, // 6 hours
+            queryCache: 3600, // 1 hour
         };
 
-        // Cache warming configuration
-        this.cacheWarmingEnabled = process.env.ENABLE_CACHE_WARMING === 'true' || process.env.ENABLE_CACHE_WARMING === true;
-        this.cacheWarmingInterval = parseInt(process.env.CACHE_WARMING_INTERVAL) || 60; // minutes
-        this.popularQueries = process.env.POPULAR_QUERIES ?
-            process.env.POPULAR_QUERIES.split(',').map(q => q.trim()) :
-            [ 'latest news', 'breaking news', 'today\'s news' ];
+        // Hardcoded cache warming configuration
+        this.cacheWarmingEnabled = true;
+        this.cacheWarmingInterval = 60; // minutes
+        this.popularQueries = [ 'latest news', 'breaking news', 'today\'s news', 'politics', 'sports' ];
 
         console.log(`CacheManager: Cache warming ${this.cacheWarmingEnabled ? 'enabled' : 'disabled'}`);
         console.log(`CacheManager: Warming interval: ${this.cacheWarmingInterval} minutes`);
