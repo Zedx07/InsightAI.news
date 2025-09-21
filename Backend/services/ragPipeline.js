@@ -1,10 +1,29 @@
 require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { ChromaClient } = require("chromadb");
+const { CloudClient, ChromaClient } = require("chromadb");
 
 class RAGPipeline {
   constructor() {
-    this.client = new ChromaClient({ path: "http://localhost:8000" });
+    // Check if cloud credentials are available
+    const chromaApiKey = process.env.CHROMA_API_KEY;
+    const chromaTenant = process.env.CHROMA_TENANT;
+    const chromaDatabase = process.env.CHROMA_DATABASE;
+    
+    if (chromaApiKey && chromaTenant && chromaDatabase) {
+      // Use cloud ChromaDB
+      this.client = new CloudClient({
+        apiKey: chromaApiKey,
+        tenant: chromaTenant,
+        database: chromaDatabase
+      });
+      console.log("ChromaDB: Using cloud client");
+    } else {
+      // Fallback to local ChromaDB
+      const chromaUrl = process.env.CHROMA_URL || "http://localhost:8000";
+      this.client = new ChromaClient({ path: chromaUrl });
+      console.log("ChromaDB: Using local client at", chromaUrl);
+    }
+    
     this.collection = null;
     this.collectionName = "news_articles";
 
@@ -183,7 +202,7 @@ Answer (in Markdown format):`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
-      const answer = response.text();
+      const answer = response.text(); 
 
       return {
         answer,
