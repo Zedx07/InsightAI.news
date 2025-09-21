@@ -8,7 +8,7 @@ class RAGPipeline {
     const chromaApiKey = process.env.CHROMA_API_KEY;
     const chromaTenant = process.env.CHROMA_TENANT;
     const chromaDatabase = process.env.CHROMA_DATABASE;
-    
+
     if (chromaApiKey && chromaTenant && chromaDatabase) {
       // Use cloud ChromaDB
       this.client = new CloudClient({
@@ -23,7 +23,7 @@ class RAGPipeline {
       this.client = new ChromaClient({ path: chromaUrl });
       console.log("ChromaDB: Using local client at", chromaUrl);
     }
-    
+
     this.collection = null;
     this.collectionName = "news_articles";
 
@@ -202,7 +202,7 @@ Answer (in Markdown format):`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
-      const answer = response.text(); 
+      const answer = response.text();
 
       return {
         answer,
