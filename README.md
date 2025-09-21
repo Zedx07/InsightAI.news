@@ -14,7 +14,7 @@ InsightAI.news is a RAG (Retrieval-Augmented Generation) system that provides in
 
 ### System Architecture
 
-![alt text](Backend/images/simple-architecture-diagram-image.png)
+![alt text](Backend/images/image.png)
 
 ## Deployment Links
 
@@ -41,6 +41,12 @@ InsightAI.news/
 ```
 
 ### Future Architecture
+
+- Initial Stage
+
+![alt text](Backend/images/simple-architecture-diagram-image.png)
+
+- Advanced Stage
 
 ![alt text](Backend/images/Architecture-Diagram-Image.png)
 
