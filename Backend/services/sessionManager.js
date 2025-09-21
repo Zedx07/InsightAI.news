@@ -18,8 +18,7 @@ class SessionManager {
         password: process.env.REDIS_PASSWORD || 'kRKq4VPS4eAWEtqtuWCWQlNKL6hxvbsS',
         socket: {
           host: process.env.REDIS_HOST || 'redis-14090.crce206.ap-south-1-1.ec2.redns.redis-cloud.com',
-          port: parseInt(process.env.REDIS_PORT) || 14090,
-          tls: true // Enable TLS for Redis Cloud
+          port: parseInt(process.env.REDIS_PORT) || 14090
         }
       });
     }
