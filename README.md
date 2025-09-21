@@ -2,314 +2,131 @@
 
 ## Overview
 
-InsightAI.news is a RAG system that provides intelligent answers to news-related queries. The system features caching , configurable TTL settings, and automatic cache warming.
+InsightAI.news is a RAG (Retrieval-Augmented Generation) system that provides intelligent answers to news-related queries. The system features advanced caching, configurable TTL settings, and automatic cache warming for optimal performance.
 
 ## Features
 
-- 🔍 **Smart News Analysis**: RAG-powered question answering using real-time news data
-- 🚀 **High Performance Caching**: Multi-layer caching with Redis
-- ⏰ **Configurable TTL**: Flexible time-to-live settings for different cache categories
-- 🔥 **Auto Cache Warming**: Proactive caching of popular queries
-- 💬 **Session Management**: Persistent chat sessions with configurable expiration
-- 📊 **Cache Analytics**: Real-time cache statistics and monitoring
+- 🔍 **RAG-Powered Chatbot** – Answer queries from live news sources using Retrieval-Augmented Generation
+- 🚀 **Smart Caching** – Redis-based multi-layer caching with TTLs, auto-renewal, and warming for popular queries
+- 💬 **Session Management** – Unique session IDs, persistent history, and one-click reset support
+- 📊 **Cache Insights** – Real-time stats and analytics for monitoring performance
+- 🌐 **Dynamic News Sources (Future via MCP)** – Users can inject any news page or feed and chat over it instantly
 
-## Architecture
+### System Architecture
+
+![alt text](Backend/images/simple-architecture-diagram-image.png)
+
+## Deployment Links
+
+- **Frontend**: [insightai-news.onrender.com](https://insightai-news.onrender.com/) | [insight-ai-news.vercel.app](https://insight-ai-news.vercel.app/)
+- **Backend**: [insightai-k8wq.onrender.com](https://insightai-k8wq.onrender.com)
+- **Repository**: [github.com/Zedx07/InsightAI.news](https://github.com/Zedx07/InsightAI.news)
+
+## Project Structure
 
 ```
-Frontend (React) ←→ Backend (Node.js/Express) ←→ Redis (Caching) ←→ ChromaDB (Vectors) ←→ Gemini AI
+InsightAI.news/
+├── README.md                    # Main project documentation
+├── docker-compose.yml          # Docker configuration
+├── Backend/                     # Backend service
+│   ├── README.md               # Backend-specific documentation
+│   ├── server.js               # Main server file
+│   ├── package.json            # Backend dependencies
+│   └── services/               # Backend services
+├── frontend/                    # Frontend React application
+│   ├── README.md               # Frontend-specific documentation
+│   ├── src/                    # Source code
+│   └── package.json            # Frontend dependencies
+└── Postman-collection/         # API testing collection
 ```
 
-## Cache Management System
+### Future Architecture
 
-### Cache Categories
+![alt text](Backend/images/Architecture-Diagram-Image.png)
 
-1. **Session Cache** (`session:*`)
+## Code Walkthrough
 
-   - Stores user chat sessions and conversation history
-   - Default TTL: 24 hours (86400 seconds)
-   - Auto-renewed on activity
+### Data Flow
 
-2. **Query Cache** (`query:*`)
-
-   - Caches frequently asked questions and responses
-   - Default TTL: 1 hour (3600 seconds)
-   - Includes source references and metadata
-
-3. **Vector Cache** (`vector:*`)
-   - Stores processed vector embeddings
-   - Default TTL: 6 hours (21600 seconds)
-   - Reduces computation overhead
-
-### TTL Configuration
-
-Configure cache expiration times in the `.env` file:
-
-```env
-# Cache Configuration
-SESSION_TTL=86400          # Session TTL in seconds (24 hours)
-VECTOR_CACHE_TTL=21600     # Vector cache TTL in seconds (6 hours)
-QUERY_CACHE_TTL=3600       # Query result cache TTL in seconds (1 hour)
+```
+RSS Feed → Parse Articles → Chunk Text → Generate Embeddings → Store in ChromaDB
+User Query → Check Redis Cache → Retrieve Vectors → Generate AI Response → Cache Result
 ```
 
-### Cache Warming
+### End-to-End Flow
 
-Automatic cache warming pre-loads popular queries to improve response times:
+**1. Data Ingestion & Embedding Creation**
 
-```env
-# Cache Warming Configuration
-ENABLE_CACHE_WARMING=true                    # Enable/disable cache warming
-CACHE_WARMING_INTERVAL=60                    # Warming interval in minutes
-POPULAR_QUERIES=what is the latest news,today's news,breaking news,politics,sports
-```
+- `DataIngestionService` fetches 15 BBC RSS articles using Cheerio XML parser
+- Articles are chunked into 500-character segments with sentence-based splitting
+- `RAGPipeline` generates embeddings using ChromaDB's built-in embedding service
+- Embeddings stored in CloudChroma with metadata (title, link, pubDate)
 
-## Installation & Setup
+**2. Redis Caching Strategy**
 
-### Prerequisites
+- **Multi-layer caching**: Query results (1h TTL), Session data (24h TTL), Vector cache (6h TTL)
+- **Auto cache warming**: Popular queries pre-cached every 60 minutes
+- **Session management**: UUID-based sessions with persistent chat history
+- **Smart TTL renewal**: Sessions refresh on activity, preventing data loss
 
-- Node.js 18+
-- Redis Server
-- ChromaDB Server
+**3. Frontend-Backend Communication**
 
-### Backend Setup
+- React frontend calls REST API endpoints (no WebSocket currently)
+- `ApiService` handles all HTTP requests with error handling and fallbacks
+- Session validation ensures data persistence across browser refreshes
+- Real-time message updates via state management in `ChatInterface`
 
-1. **Clone and install dependencies:**
+**4. RAG Query Processing**
 
-```bash
-cd Backend
-npm install
-```
+- User query first checks Redis cache for existing responses
+- If cache miss: ChromaDB performs cosine similarity search (top-3 chunks)
+- Retrieved chunks contextualize Gemini 2.0 Flash for answer generation
+- Response formatted in Markdown with source attribution
+- Result cached for future identical queries
 
-2. **Configure environment variables:**
+**5. Notable Design Decisions**
 
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
+- **Cloud-first approach**: ChromaDB Cloud + Redis Cloud for production reliability
+- **Sentence-based chunking**: Better context preservation than fixed-length splitting
+- **Cache-first architecture**: Reduces API costs and improves response times
+- **Session persistence**: Enables conversation continuity and user experience
 
-3. **Start Redis server:**
+**6. Potential Improvements**
 
-```bash
-redis-server
-```
+- Implement WebSocket for real-time responses(Will add in Future)
+- Add user authentication and personalized sessions
+- Use Redis vector DB for storing cache in vectors
+- Dynamic chunk sizing based on content type
+- Implement vector similarity thresholds for relevance filtering
+- Include MCP and create a Agentic RAG
 
-4. **Start ChromaDB server:**
+## Documentation
 
-```bash
-docker run -p 8000:8000 chromadb/chroma
-```
+- **Backend Documentation**: Please visit [Backend/README.md](./Backend/README.md) for detailed backend setup, API documentation, and cache management
+- **Frontend Documentation**: See `frontend/README.md` for React app documentation
+- **API Collection**: Import `Postman-collection/InsightAI.news-RAG.postman_collection.json` for API testing
 
-5. **Start the backend server:**
+## Technologies Used & Justification
 
-```bash
-npm start
-```
+- **Frontend**: React.js, SCSS - Component architecture ideal for chat interfaces with real-time updates
+- **Backend**: Node.js, Express.js - Lightweight REST API with excellent async handling for vector search + LLM calls
+- **Vector DB**: ChromaDB - Zero-config setup with built-in embeddings, perfect for rapid prototyping and MVP
+- **Cache & Sessions**: Redis - Industry standard with sub-millisecond response times for chat history retrieval
+- **AI**: Google Gemini 2.0 Flash - Generous free tier, fast responses, excellent instruction-following for RAG
+- **Deployment**: Docker - Containerized deployment for production scalability
 
-### Frontend Setup
+## Deployment
 
-```bash
-cd frontend
-npm install
-npm start
-```
+For production deployment, I deployed both backend and frontend using **Render MCP**. Created Docker images for containerized deployment of the complete monorepo (self-learning).
 
-## Cache Management API
+## Future Plans
 
-### Get Cache Statistics
-
-```http
-GET /api/cache/stats
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "stats": {
-    "totalKeys": 156,
-    "categories": {
-      "sessions": 23,
-      "queries": 45,
-      "vectors": 88,
-      "other": 0
-    },
-    "keysByTTL": {
-      "expiring": 140,
-      "persistent": 16
-    },
-    "memoryUsage": 2048576
-  }
-}
-```
-
-### Manual Cache Warming
-
-```http
-POST /api/cache/warm
-```
-
-### Clear Cache by Pattern
-
-```http
-DELETE /api/cache/clear/query:*
-```
-
-**Or clear all cache:**
-
-```http
-DELETE /api/cache/clear
-```
-
-### Session TTL Management
-
-**Refresh session TTL:**
-
-```http
-PUT /api/session/{sessionId}/refresh
-```
-
-**Check session TTL:**
-
-```http
-GET /api/session/{sessionId}/ttl
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "sessionId": "abc-123",
-  "ttl": 3600,
-  "expiresIn": "60 minutes"
-}
-```
-
-## Performance Optimization
-
-### Cache Hit Strategies
-
-1. **Popular Query Caching**: Frequently asked questions are pre-cached
-2. **Session Persistence**: User conversations persist across browser sessions
-3. **Vector Optimization**: Embeddings cached to avoid recomputation
-4. **Intelligent Warming**: System learns and caches trending topics
-
-### TTL Best Practices
-
-**Short TTL (1-5 minutes):**
-
-- Real-time data queries
-- Breaking news updates
-- Live event information
-
-**Medium TTL (1-6 hours):**
-
-- General news queries
-- Analysis and summaries
-- Topic-based searches
-
-**Long TTL (12-24 hours):**
-
-- User sessions
-- Historical data
-- Static content
-
-### Cache Warming Strategies
-
-1. **Time-based Warming**: Schedule warming during off-peak hours
-2. **Usage-based Warming**: Cache queries based on frequency patterns
-3. **Topic-based Warming**: Pre-cache content for trending topics
-4. **Geographic Warming**: Cache region-specific content
-
-## Monitoring & Debugging
-
-### Cache Metrics
-
-Monitor cache performance using the stats endpoint:
-
-```javascript
-// Example monitoring script
-const monitorCache = async () => {
-  const response = await fetch("/api/cache/stats");
-  const { stats } = await response.json();
-
-  console.log("Cache Hit Ratio:", stats.hitRatio);
-  console.log("Memory Usage:", stats.memory);
-  console.log("Key Distribution:", stats.categories);
-};
-```
-
-### Debug Cache Issues
-
-1. **Check TTL settings**: Verify environment variables are loaded correctly
-2. **Monitor Redis logs**: Watch for connection issues or memory warnings
-3. **Analyze cache patterns**: Use stats endpoint to identify bottlenecks
-4. **Test cache warming**: Manually trigger warming to verify functionality
-
-## Configuration Examples
-
-### Development Environment
-
-```env
-# Fast development cycles
-SESSION_TTL=3600           # 1 hour
-VECTOR_CACHE_TTL=1800      # 30 minutes
-QUERY_CACHE_TTL=300        # 5 minutes
-CACHE_WARMING_INTERVAL=15  # 15 minutes
-```
-
-### Production Environment
-
-```env
-# Optimized for performance
-SESSION_TTL=86400          # 24 hours
-VECTOR_CACHE_TTL=43200     # 12 hours
-QUERY_CACHE_TTL=7200       # 2 hours
-CACHE_WARMING_INTERVAL=60  # 60 minutes
-```
-
-### High-Traffic Setup
-
-```env
-# Maximum performance
-SESSION_TTL=172800         # 48 hours
-VECTOR_CACHE_TTL=86400     # 24 hours
-QUERY_CACHE_TTL=14400      # 4 hours
-CACHE_WARMING_INTERVAL=30  # 30 minutes
-POPULAR_QUERIES=breaking news,latest updates,politics,sports,technology,health,business,entertainment
-```
-
-## Troubleshooting
-
-### Common Issues
-
-**Cache Not Working:**
-
-- Verify Redis server is running on localhost:6379
-- Check Redis connection in application logs
-- Confirm environment variables are set correctly
-
-**Poor Cache Hit Rates:**
-
-- Increase TTL values for stable content
-- Add more popular queries to warming list
-- Monitor query patterns and adjust accordingly
-
-**Memory Issues:**
-
-- Implement cache size limits
-- Set appropriate TTL values
-- Use Redis memory optimization settings
-
-**Session Expiration:**
-
-- Check SESSION_TTL configuration
-- Implement auto-refresh for active sessions
-- Consider warning users before expiration
+- **Redis Vector Storage**: Implement Redis for storing vectors instead of ChromaDB
+- **MCP Integration**: Implement personalized news sources using MCP integration. Currently processes ~50 fixed articles from RSS feeds. With MCP, users will paste any news link or select custom sources, and the chatbot will call an MCP scraper tool to pull and index content instantly, enabling chat over user-chosen sources
 
 ## Contributing
 
-1. This is open source. Please Free to use and contribute in it's growth
+Just Fork and Clone and create a new Branch nad raise a PR. Let's build this together!
 
 ## License
 
@@ -317,5 +134,5 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Developed by** Shubham Golwal
+**Developed by** Shubham Golwal  
 **Contact** shubhamgolwal123@gmail.com (+91 8767284228)
