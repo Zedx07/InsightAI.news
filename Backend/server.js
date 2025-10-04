@@ -6,6 +6,7 @@ const DataIngestionService = require("./services/dataIngestion");
 const RAGPipeline = require("./services/ragPipeline");
 const SessionManager = require('./services/sessionManager');
 const CacheManager = require('./services/cacheManager');
+const dbClient = require('./db/client');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -20,6 +21,13 @@ const cacheManager = new CacheManager();
 
 // Start cache warming process
 cacheManager.startCacheWarming(RAGService, dataService);
+
+dbClient.connect().then(() => {
+  console.log("Connected to the database successfully");
+}).catch((error) => {
+  console.error("Database connection error:", error);
+  process.exit(1);
+});
 
 app.get("/api/health", (req, res) => {
   res.json({

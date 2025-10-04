@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://insightaiuser:lucXIvEOaXbR0q2slgK7S1Ab9F0ENP1H@dpg-d3gdj5ffte5s73c1rqv0-a.singapore-postgres.render.com/authentication_hc9e"
+}
+
+
+model User {
+    userId String @id @default(uuid())
+    email String @unique
+    password String
+    createdAt DateTime @default(now())
+    lastLogin DateTime?
+
+    sessions Session[]
+    message Message[]
+
+    @@map("users")
+}
+
+model Session {
+    sessionId String @id @default(uuid())
+    userId String? 
+    createdAt DateTime @default(now())
+    lastActive DateTime @default(now())
+
+    user User? @relation(fields: [userId], references: [userId])
+    messages Message[]
+
+    @@map("sessions")
+}
+
+model Message {
+  messageId   String    @id @default(uuid())
+  sessionId   String
+  userId      String?   
+  type        MessageType
+  content     String    @db.Text
+  sources     Json?     
+  timestamp   DateTime  @default(now())
+  
+  session     Session   @relation(fields: [sessionId], references: [sessionId])
+  user        User?     @relation(fields: [userId], references: [userId])
+  
+  @@map("messages")
+}
+
+enum MessageType {
+  USER
+  BOT
+}
