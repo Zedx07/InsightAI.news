@@ -7,12 +7,15 @@ const RAGPipeline = require("./services/ragPipeline");
 const SessionManager = require('./services/sessionManager');
 const CacheManager = require('./services/cacheManager');
 const dbClient = require('./db/client');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use('/api/auth', authRoutes);
+
 
 const dataService = new DataIngestionService();
 const RAGService = new RAGPipeline();
@@ -29,10 +32,19 @@ dbClient.connect().then(() => {
   process.exit(1);
 });
 
-app.get("/api/health", (req, res) => {
+process.on('SIGINT', async () => {
+  await dbClient.disconnect();
+  process.exit(0);
+})
+
+app.get("/api/health", async (req, res) => {
+  const dbHealthy = await dbClient.isHealthy();
+
   res.json({
     message: "RAG bot is up to Go!",
     timestamp: new Date().toISOString(),
+    status: dbHealthy ? 'ok' : 'degraded',
+    database: dbClient.getConnectionStatus()
   });
 });
 
@@ -386,6 +398,27 @@ app.get('/api/session/:sessionId/ttl', async (req, res) => {
     });
   }
 });
+
+// JWT auth
+
+//  create new user
+// app.post('/api/auth/register', async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     if (!email || !password) {
+//       return res.status(400).json({ success: false, error: 'Email and password are required' });
+//     }
+
+//     const newUser = await dbClient.getPrismaClient().user.create({
+//       data: { email, password }
+//     });
+
+//     res.json({ success: true, userId: newUser.userId });
+//   } catch (error) {
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
