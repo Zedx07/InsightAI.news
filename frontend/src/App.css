@@ -12,43 +12,203 @@
 
 .app-layout {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   position: relative;
 }
 
+/* App Header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: white;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.app-title h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #007bff;
+  margin: 0;
+}
+
 .menu-btn {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
   background: #007bff;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  display: none;
 }
 
 .menu-btn:hover {
   background: #0056b3;
 }
 
-/* Show menu button only on mobile */
-@media (min-width: 769px) {
-  .menu-btn {
-    display: none;
+/* Auth Buttons */
+.auth-section {
+  display: flex;
+  align-items: center;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.auth-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.auth-btn.login-btn {
+  background: none;
+  color: #007bff;
+  border-color: #007bff;
+}
+
+.auth-btn.login-btn:hover {
+  background: #007bff;
+  color: white;
+}
+
+.auth-btn.register-btn {
+  background: #007bff;
+  color: white;
+}
+
+.auth-btn.register-btn:hover {
+  background: #0056b3;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Welcome Screen */
+.welcome-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.welcome-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 40px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-content h2 {
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.welcome-content p {
+  font-size: 18px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.welcome-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.welcome-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  min-width: 120px;
+}
+
+.welcome-btn.primary {
+  background: #007bff;
+  color: white;
+}
+
+.welcome-btn.primary:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.welcome-btn.secondary {
+  background: none;
+  color: #007bff;
+  border-color: #007bff;
+}
+
+.welcome-btn.secondary:hover {
+  background: #007bff;
+  color: white;
+}
+
+/* Content Layout */
+.app-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
 .sidebar {
   flex-shrink: 0;
   transition: transform 0.3s ease;
+  position: relative;
 }
 
 .main-content {
   flex: 1;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .overlay {
@@ -61,10 +221,40 @@
   z-index: 999;
 }
 
+/* Desktop layout */
+@media (min-width: 769px) {
+  .menu-btn {
+    display: none !important;
+  }
+
+  .app-content {
+    display: flex;
+    flex: 1;
+  }
+
+  .sidebar {
+    position: relative;
+    transform: none !important;
+  }
+}
+
 /* Mobile styles */
 @media (max-width: 768px) {
   .menu-btn {
-    display: block;
+    display: block !important;
+  }
+
+  .auth-buttons {
+    gap: 8px;
+  }
+
+  .auth-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .app-title h1 {
+    font-size: 20px;
   }
 
   .sidebar {
@@ -79,5 +269,26 @@
 
   .sidebar.show {
     transform: translateX(0);
+  }
+
+  .welcome-content {
+    margin: 20px;
+    padding: 30px 20px;
+  }
+
+  .welcome-content h2 {
+    font-size: 24px;
+  }
+
+  .welcome-content p {
+    font-size: 16px;
+  }
+
+  .welcome-actions {
+    flex-direction: column;
+  }
+
+  .welcome-btn {
+    width: 100%;
   }
 }

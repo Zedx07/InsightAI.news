@@ -1,0 +1,122 @@
+/* Register.css - Extends Login.css styles */
+@import "./Login.css";
+
+.validation-error {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: -16px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.success-message {
+  text-align: center;
+  padding: 60px 40px;
+  background: white;
+  border-radius: 12px;
+}
+
+.success-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: successPulse 0.6s ease-out;
+}
+
+.success-message h2 {
+  color: #28a745;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.success-message p {
+  color: #666;
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+@keyframes successPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Password strength indicator styles */
+.password-strength {
+  margin-top: 8px;
+}
+
+.password-strength-bar {
+  height: 4px;
+  background: #e1e5e9;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.password-strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.password-strength-fill.weak {
+  width: 33%;
+  background: #dc3545;
+}
+
+.password-strength-fill.medium {
+  width: 66%;
+  background: #ffc107;
+}
+
+.password-strength-fill.strong {
+  width: 100%;
+  background: #28a745;
+}
+
+.password-strength-text {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Form validation states */
+.form-group input.valid {
+  border-color: #28a745;
+}
+
+.form-group input.invalid {
+  border-color: #dc3545;
+}
+
+.validation-success {
+  color: #28a745;
+  font-size: 12px;
+  margin-top: -16px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .success-message {
+    padding: 40px 24px;
+  }
+
+  .success-icon {
+    font-size: 40px;
+  }
+
+  .success-message h2 {
+    font-size: 20px;
+  }
+}

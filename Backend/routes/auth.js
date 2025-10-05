@@ -33,9 +33,9 @@ router.post('/register', async (req, res) => {
 // Login endpoint
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, name } = req.body;
 
-        const result = await authService.login(email, password);
+        const result = await authService.login(email, password, name);
 
         res.json({
             success: true,

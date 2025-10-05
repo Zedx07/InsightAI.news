@@ -20,7 +20,7 @@ class AuthService {
         }
     }
 
-    async register(name, password, email) {
+    async register(email, password, name) {
         try {
             if (!email || !password) {
                 throw new Error("Email & password are required");
@@ -69,7 +69,7 @@ class AuthService {
     }
 
     //Login user
-    async login(email, password) {
+    async login(email, password, name) {
         try {
             if (!email || !password) {
                 throw new Error('Email and password are required');
@@ -78,6 +78,9 @@ class AuthService {
             const user = await this.prisma.user.findUnique({
                 where: { email }
             });
+
+            console.log(`Fetched user`, user);
+
 
             if (!user) {
                 throw new Error('Invalid email or password');
@@ -91,14 +94,14 @@ class AuthService {
             }
 
             await this.prisma.user.update({
-                where: { id: user.id },
+                where: { userId: user.userId },
                 data: { lastLogin: new Date() }
             });
 
             // Generate token
             const token = jwt.sign(
                 {
-                    userId: user.id,
+                    userId: user.userId,
                     email: user.email
                 },
                 this.JWT_SECRET,
@@ -110,7 +113,7 @@ class AuthService {
             return {
                 token,
                 user: {
-                    id: user.id,
+                    userId: user.userId,
                     email: user.email,
                     name: user.name
                 }
@@ -136,9 +139,9 @@ class AuthService {
     async getUserById(userId) {
         try {
             const user = await this.prisma.user.findUnique({
-                where: { id: userId },
+                where: { userId: userId },
                 select: {
-                    id: true,
+                    userId: true,
                     email: true,
                     name: true,
                     createdAt: true,

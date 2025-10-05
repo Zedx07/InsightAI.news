@@ -1,13 +1,26 @@
-const API_BASE_URL = 'https://insightai-k8wq.onrender.com/api';
+// const API_BASE_URL = 'https://insightai-k8wq.onrender.com/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 class ApiService {
+    // Get auth token from localStorage
+    getAuthToken() {
+        return localStorage.getItem('authToken');
+    }
+
+    // Get authorization headers
+    getAuthHeaders() {
+        const token = this.getAuthToken();
+        return {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+        };
+    }
+
     async createSession() {
         try {
             const response = await fetch(`${API_BASE_URL}/session/createNew`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: this.getAuthHeaders(),
             });
             const data = await response.json();
             if (!data.success) throw new Error(data.error);
@@ -22,9 +35,7 @@ class ApiService {
         try {
             const response = await fetch(`${API_BASE_URL}/chat`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: this.getAuthHeaders(),
                 body: JSON.stringify({ query, sessionId }),
             });
             const data = await response.json();
@@ -38,7 +49,9 @@ class ApiService {
 
     async getSessions() {
         try {
-            const response = await fetch(`${API_BASE_URL}/sessions`);
+            const response = await fetch(`${API_BASE_URL}/sessions`, {
+                headers: this.getAuthHeaders(),
+            });
             const data = await response.json();
             return { sessions: data.sessions || [] };
         } catch (error) {
@@ -51,6 +64,7 @@ class ApiService {
         try {
             const response = await fetch(`${API_BASE_URL}/session/${sessionId}`, {
                 method: 'DELETE',
+                headers: this.getAuthHeaders(),
             });
             const data = await response.json();
             if (!data.success) throw new Error(data.error);
@@ -63,7 +77,9 @@ class ApiService {
 
     async getSessionHistory(sessionId) {
         try {
-            const response = await fetch(`${API_BASE_URL}/session/${sessionId}/history`);
+            const response = await fetch(`${API_BASE_URL}/session/${sessionId}/history`, {
+                headers: this.getAuthHeaders(),
+            });
             const data = await response.json();
             if (!data.success) throw new Error(data.error);
             return data.messages;
@@ -75,7 +91,9 @@ class ApiService {
 
     async validateSession(sessionId) {
         try {
-            const response = await fetch(`${API_BASE_URL}/session/${sessionId}/validate`);
+            const response = await fetch(`${API_BASE_URL}/session/${sessionId}/validate`, {
+                headers: this.getAuthHeaders(),
+            });
             const data = await response.json();
             return data.valid;
         } catch (error) {
